@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.romel.mymusicapp.AudioPlayer">
+
+    <Button
+        android:id="@+id/play_pause_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/pause_text"
+        android:textAllCaps="false"
+        android:layout_marginLeft="50dp"
+        android:layout_above="@+id/seek_bar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="7dp" />
+
+    <SeekBar
+        android:id="@+id/seek_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/seek_bar_progress"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/seek_bar_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="52dp"
+        android:text="00:00"
+        tools:text="00:00" />
+
+    <ImageView
+        android:id="@+id/album_art"
+        android:layout_width="325dp"
+        android:layout_height="325dp"
+        app:srcCompat="@android:color/background_dark"
+        android:layout_below="@+id/song_album_text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp" />
+
+    <TextView
+        android:id="@+id/song_album_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="51dp"
+        android:text="Song/Artist"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+</RelativeLayout>
