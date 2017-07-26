@@ -51,12 +51,12 @@ public class SongsActivity extends AppCompatActivity {
         }
 
         else {
-            doStuff();
+            getSongs();
         }
 
     }
 
-    public void doStuff() {
+    public void getSongs() {
         songListView = (ListView) findViewById(R.id.songs_listview);
         songs = new ArrayList<>();
         songLocations = new ArrayList<>();
@@ -84,6 +84,24 @@ public class SongsActivity extends AppCompatActivity {
     }
 
     public void getMusic() {
+        String specifiedValue = mpm.getMediaBundle().getString("Value");
+
+        if (specifiedValue.equals("All Songs")) {
+            getAllSongs();
+        }
+
+        else if (specifiedValue.equals("Artist")) {
+            getSpecifiedArtistsSongs(mpm.getMediaBundle().getString("Artist"));
+        }
+
+        else if (specifiedValue.equals("Album")) {
+            getSpecifiedAlbumsSongs(mpm.getMediaBundle().getString("Album"));
+        }
+
+
+    }
+
+    public void getAllSongs() {
         ContentResolver cR = getContentResolver();
         Uri songUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor songCursor = cR.query(songUri, null, null, null, null);
@@ -94,11 +112,57 @@ public class SongsActivity extends AppCompatActivity {
             int songLocation = songCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
 
             do {
-                String currentTitle = songCursor.getString(songTitle);
                 String currentArtist = songCursor.getString(songArtist);
+                String currentTitle = songCursor.getString(songTitle);
                 String currentLocation = songCursor.getString(songLocation);
                 songs.add(currentTitle + "\n" + currentArtist);
                 songLocations.add(currentLocation);
+            } while (songCursor.moveToNext());
+        }
+    }
+
+    public void getSpecifiedArtistsSongs(String artist) {
+        ContentResolver cR = getContentResolver();
+        Uri songUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Cursor songCursor = cR.query(songUri, null, null, null, null);
+
+        if (songCursor != null && songCursor.moveToFirst()) {
+            int songTitle = songCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
+            int songArtist = songCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
+            int songLocation = songCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
+
+            do {
+                String currentArtist = songCursor.getString(songArtist);
+                if (currentArtist.equals(artist)) {
+                    String currentTitle = songCursor.getString(songTitle);
+                    String currentLocation = songCursor.getString(songLocation);
+                    songs.add(currentTitle + "\n" + currentArtist);
+                    songLocations.add(currentLocation);
+                }
+            } while (songCursor.moveToNext());
+        }
+    }
+
+    public void getSpecifiedAlbumsSongs(String album) {
+        ContentResolver cR = getContentResolver();
+        Uri songUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Cursor songCursor = cR.query(songUri, null, null, null, null);
+
+        if (songCursor != null && songCursor.moveToFirst()) {
+            int songTitle = songCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
+            int songArtist = songCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
+            int songLocation = songCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
+            int songAlbum = songCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
+
+            do {
+                String currentAlbum = songCursor.getString(songAlbum);
+                if (currentAlbum.equals(album)) {
+                    String currentArtist = songCursor.getString(songArtist);
+                    String currentTitle = songCursor.getString(songTitle);
+                    String currentLocation = songCursor.getString(songLocation);
+                    songs.add(currentTitle + "\n" + currentArtist);
+                    songLocations.add(currentLocation);
+                }
             } while (songCursor.moveToNext());
         }
     }
@@ -111,7 +175,7 @@ public class SongsActivity extends AppCompatActivity {
                     if (ContextCompat.checkSelfPermission(SongsActivity.this,
                             Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                         Toast.makeText(this, "Permission Granted!", Toast.LENGTH_SHORT).show();
-                        doStuff();
+                        getSongs();
                     }
                 }
                 else {

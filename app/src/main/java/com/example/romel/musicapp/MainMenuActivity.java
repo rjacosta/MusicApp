@@ -29,6 +29,10 @@ public class MainMenuActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainMenuActivity.this, SongsActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("Value", "All Songs");
+                mpm.setMediaBundle(bundle);
+                intent.putExtras(bundle);
                 startActivity(intent);
             }
         });

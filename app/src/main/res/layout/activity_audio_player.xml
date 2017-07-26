@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.romel.mymusicapp.AudioPlayer">
+    tools:context="com.example.romel.musicapp.AudioPlayer">
 
     <Button
         android:id="@+id/play_pause_button"
