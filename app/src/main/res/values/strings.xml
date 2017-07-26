@@ -8,4 +8,6 @@
     <string name="pause_text">Pause</string>
     <string name="play_text">Play</string>
     <string name="current_song_text">Currently Playing</string>
+    <string name="playlist_edittext_hint">Playlist Name</string>
+    <string name="playlist_button_text">Enter</string>
 </resources>

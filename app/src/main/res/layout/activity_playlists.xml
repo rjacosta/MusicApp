@@ -5,12 +5,41 @@
     android:layout_height="match_parent"
     tools:context="com.example.romel.musicapp.PlaylistsActivity">
 
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Playlists"
-        tools:layout_editor_absoluteX="150dp"
-        tools:layout_editor_absoluteY="91dp"
-        />
+    <ListView
+        android:id="@+id/playlists_listview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true" />
+
+    <RelativeLayout
+        android:id="@+id/playlist_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/grey_background"
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/playlists_edittext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/button_border"
+            android:hint="@string/playlist_edittext_hint"
+            android:imeOptions="actionDone"
+            android:inputType="text"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/playlists_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/playlists_edittext"
+            android:background="@drawable/button_border"
+            android:text="@string/playlist_button_text"
+            android:visibility="gone" />
+    </RelativeLayout>
+
 </RelativeLayout>
