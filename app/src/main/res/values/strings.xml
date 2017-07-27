@@ -10,4 +10,9 @@
     <string name="current_song_text">Currently Playing</string>
     <string name="playlist_edittext_hint">Playlist Name</string>
     <string name="playlist_button_text">Enter</string>
+    <string name="cancel_button_text">Cancel</string>
+    <string name="new_playlist_button_text">+ New Playlist</string>
+    <string name="delete_playlist_button_text">- Delete Playlist</string>
+    <string name="final_delete_button_text">Delete</string>
+
 </resources>
