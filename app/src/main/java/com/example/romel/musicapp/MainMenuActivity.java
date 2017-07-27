@@ -1,8 +1,6 @@
 package com.example.romel.musicapp;
 
-import android.content.Context;
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -41,7 +39,7 @@ public class MainMenuActivity extends AppCompatActivity {
         playlistsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainMenuActivity.this, PlaylistsActivity.class);
+                Intent intent = new Intent(MainMenuActivity.this, PlaylistMasterListActivity.class);
                 startActivity(intent);
             }
         });
@@ -72,8 +70,8 @@ public class MainMenuActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
         mpm = new MediaPlayerMaster();
+
     }
 
 }

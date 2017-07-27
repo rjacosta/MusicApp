@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
@@ -13,10 +14,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 import android.Manifest;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import static com.example.romel.musicapp.MainMenuActivity.mpm;
@@ -29,13 +32,16 @@ public class SongsActivity extends AppCompatActivity {
     ArrayList<String> songLocations;
 
     ListView songListView;
-
     ArrayAdapter<String> adapter;
+
+    LinearLayout addDeleteSongsLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_songs);
+
+        addDeleteSongsLayout = (LinearLayout) findViewById(R.id.add_delete_songs_layout);
 
         if (ContextCompat.checkSelfPermission(SongsActivity.this,
                 Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -98,6 +104,10 @@ public class SongsActivity extends AppCompatActivity {
             getSpecifiedAlbumsSongs(mpm.getMediaBundle().getString("Album"));
         }
 
+        else if (specifiedValue.equals("Playlist")) {
+            addDeleteSongsLayout.setVisibility(View.VISIBLE);
+            getSpecifiedPlaylistSongs(mpm.getMediaBundle().getString("Playlist"));
+        }
 
     }
 
@@ -165,6 +175,20 @@ public class SongsActivity extends AppCompatActivity {
                 }
             } while (songCursor.moveToNext());
         }
+    }
+
+    public void getSpecifiedPlaylistSongs(String playlistName) {
+        ArrayList<String> playlist = mpm.getMasterPlaylistMap().get(playlistName);
+        Uri songUri;
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        for (int i = 0; i < playlist.size(); i++) {
+            songUri = Uri.fromFile(new File(playlist.get(i)));
+            mmr.setDataSource(this, songUri);
+            String songTitle = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+            String songArtist = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+            songs.add(songTitle + "\n" + songArtist);
+        }
+
     }
 
     @Override

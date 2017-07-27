@@ -4,8 +4,9 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 
-import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by romel on 7/23/2017.
@@ -16,7 +17,9 @@ public class MediaPlayerMaster {
     static MediaPlayer mp = null;
     static Bundle mediaBundle = null;
     static Intent songIntent = null;
-    static ArrayList<String> playlists = new ArrayList<>();
+    static ArrayList<String> playlistsNames = new ArrayList<>();
+    static HashMap<String, ArrayList<String>> MasterPlaylistMap =
+            new HashMap<>();
 
     public MediaPlayer getMP() {
         return mp;
@@ -34,7 +37,10 @@ public class MediaPlayerMaster {
 
     public void setSongIntent(Intent i) { songIntent = i; }
 
-    public ArrayList<String> getPlaylists() { return playlists; }
+    public ArrayList<String> getPlaylistNames() { return playlistsNames; }
+
+    public HashMap<String, ArrayList<String>>
+        getMasterPlaylistMap() { return MasterPlaylistMap; }
 
     public void start() {
         mp.start();

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.romel.musicapp.PlaylistsActivity">
+    tools:context="com.example.romel.musicapp.PlaylistMasterListActivity">
 
     <LinearLayout
         android:id="@+id/add_sub_layout"

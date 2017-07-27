@@ -14,5 +14,7 @@
     <string name="new_playlist_button_text">+ New Playlist</string>
     <string name="delete_playlist_button_text">- Delete Playlist</string>
     <string name="final_delete_button_text">Delete</string>
+    <string name="add_songs_text">+ Add songs</string>
+    <string name="delete_songs_text">- Delete songs</string>
 
 </resources>
