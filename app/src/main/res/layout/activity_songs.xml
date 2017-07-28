@@ -18,14 +18,35 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/add_songs_text"
+            android:visibility="gone"
             android:layout_weight="1"/>
 
         <Button
             android:id="@+id/delete_songs_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:enabled="false"
             android:text="@string/delete_songs_text"
+            android:visibility="gone"
             android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/done_adding_songs_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:text="Add"
+            android:visibility="gone"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/cancel_adding_songs_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:visibility="gone"
+            android:layout_weight="1"/>
+
     </LinearLayout>
 
     <ListView

@@ -12,8 +12,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -35,6 +37,13 @@ public class SongsActivity extends AppCompatActivity {
     ArrayAdapter<String> adapter;
 
     LinearLayout addDeleteSongsLayout;
+    Button addSongsButton;
+    Button deleteSongsButton;
+    boolean deleteMode = false;
+    boolean addMode = false;
+
+    Button doneAddingSongsButton;
+    Button cancelAddingSongsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +51,33 @@ public class SongsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_songs);
 
         addDeleteSongsLayout = (LinearLayout) findViewById(R.id.add_delete_songs_layout);
+        addSongsButton = (Button) findViewById(R.id.add_songs_button);
+        deleteSongsButton = (Button) findViewById(R.id.delete_songs_button);
+
+        doneAddingSongsButton = (Button) findViewById(R.id.done_adding_songs_button);
+        cancelAddingSongsButton = (Button) findViewById(R.id.cancel_adding_songs_button);
+
+        addSongsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(SongsActivity.this, SongsActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("Value", "Playlist");
+                bundle.putString("Playlist", "Add Songs");
+                bundle.putString(" ")
+                mpm.setMediaBundle(bundle);
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+        });
+
+        deleteSongsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteMode = true;
+                songListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+            }
+        });
 
         if (ContextCompat.checkSelfPermission(SongsActivity.this,
                 Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -73,18 +109,23 @@ public class SongsActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-                if (mpm.getSongIntent() != null) stopService(mpm.getSongIntent());
-                Intent intent = new Intent(SongsActivity.this, AudioPlayer.class);
-                Bundle bundle = new Bundle();
-                bundle.putString("songLoc", songLocations.get(position));
-                mpm.setMediaBundle(bundle);
-                intent.putExtras(bundle);
-                startActivity(intent);
-                Intent intentService = new Intent(SongsActivity.this, AudioPlayerService.class);
-                intentService.putExtras(bundle);
-                mpm.setSongIntent(intentService);
-                startService(intentService);
+                if (addMode) {
 
+                }
+                else {
+                    if (mpm.getSongIntent() != null) stopService(mpm.getSongIntent());
+                    Intent intent = new Intent(SongsActivity.this, AudioPlayer.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("songLoc", songLocations.get(position));
+                    mpm.setMediaBundle(bundle);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
+                    Intent intentService = new Intent(SongsActivity.this, AudioPlayerService.class);
+                    intentService.putExtras(bundle);
+                    mpm.setSongIntent(intentService);
+                    startService(intentService);
+                    addMode = true;
+                }
             }
         });
     }
@@ -105,10 +146,24 @@ public class SongsActivity extends AppCompatActivity {
         }
 
         else if (specifiedValue.equals("Playlist")) {
-            addDeleteSongsLayout.setVisibility(View.VISIBLE);
-            getSpecifiedPlaylistSongs(mpm.getMediaBundle().getString("Playlist"));
+            String specifiedPlaylistName = mpm.getMediaBundle().getString("Playlist");
+            if (mpm.getMediaBundle().getString(specifiedPlaylistName) != null && mpm.getMediaBundle().getString(specifiedPlaylistName).equals("Add Songs")) {
+                addSongsToPlaylist(specifiedPlaylistName);
+            }
+            else {
+                addDeleteSongsLayout.setVisibility(View.VISIBLE);
+                addSongsButton.setVisibility(View.VISIBLE);
+                deleteSongsButton.setVisibility(View.VISIBLE);
+                getSpecifiedPlaylistSongs(mpm.getMediaBundle().getString("Playlist"));
+            }
         }
+    }
 
+    public void addSongsToPlaylist(String playlistName) {
+        ArrayList<String> playlist = mpm.getMasterPlaylistMap().get(playlistName);
+        getAllSongs();
+        songListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        addMode = true;
     }
 
     public void getAllSongs() {
