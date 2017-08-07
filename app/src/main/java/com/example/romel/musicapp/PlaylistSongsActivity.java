@@ -38,6 +38,8 @@ public class PlaylistSongsActivity extends AppCompatActivity {
     LinearLayout addDeleteSongsLayout;
     Button addSongsButton;
     Button deleteSongsButton;
+    Button doneDeletingSongsButton;
+    Button cancelDeletingSongsButton;
     boolean deleteMode = false;
 
     @Override
@@ -48,7 +50,8 @@ public class PlaylistSongsActivity extends AppCompatActivity {
         addDeleteSongsLayout = (LinearLayout) findViewById(R.id.add_delete_songs_layout);
         addSongsButton = (Button) findViewById(R.id.add_songs_button);
         deleteSongsButton = (Button) findViewById(R.id.delete_songs_button);
-
+        doneDeletingSongsButton = (Button) findViewById(R.id.done_deleting_songs_button);
+        cancelDeletingSongsButton = (Button) findViewById(R.id.cancel_deleting_songs_button);
 
         addSongsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,6 +70,10 @@ public class PlaylistSongsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 songListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
                 deleteMode = true;
+                addSongsButton.setVisibility(View.GONE);
+                deleteSongsButton.setVisibility(View.GONE);
+                doneDeletingSongsButton.setVisibility(View.VISIBLE);
+                cancelDeletingSongsButton.setVisibility(View.VISIBLE);
             }
         });
 
@@ -82,12 +89,12 @@ public class PlaylistSongsActivity extends AppCompatActivity {
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSION_REQUEST);
             }
         } else {
-            getSongs();
+            getPlaylistSongs();
         }
 
     }
 
-    public void getSongs() {
+    public void getPlaylistSongs() {
         songListView = (ListView) findViewById(R.id.songs_listview);
         songs = new ArrayList<>();
         songLocations = new ArrayList<>();
@@ -115,37 +122,20 @@ public class PlaylistSongsActivity extends AppCompatActivity {
     }
 
     public void getMusic() {
-        String specifiedValue = mpm.getMediaBundle().getString("Value");
-
-        if (specifiedValue.equals("All Songs")) {
-            getAllSongs();
-        } else if (specifiedValue.equals("Artist")) {
-            getSpecifiedArtistsSongs(mpm.getMediaBundle().getString("Artist"));
-        } else if (specifiedValue.equals("Album")) {
-            getSpecifiedAlbumsSongs(mpm.getMediaBundle().getString("Album"));
-        } else if (specifiedValue.equals("Playlist")) {
-            String specifiedPlaylistName = mpm.getMediaBundle().getString("Playlist Name");
-            if (mpm.getMediaBundle().getString(specifiedPlaylistName) != null && mpm.getMediaBundle().getString(specifiedPlaylistName).equals("Add Songs")) {
-                addSongsToPlaylist(specifiedPlaylistName);
-            } else {
-                addDeleteSongsLayout.setVisibility(View.VISIBLE);
-                addSongsButton.setVisibility(View.VISIBLE);
-                deleteSongsButton.setVisibility(View.VISIBLE);
-                getSpecifiedPlaylistSongs(mpm.getMediaBundle().getString("Playlist Name"));
-            }
+        String specifiedPlaylistName = mpm.getMediaBundle().getString("Playlist Name");
+        ArrayList<String> playlist = mpm.getMasterPlaylistMap().get(specifiedPlaylistName);
+        Uri songUri;
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        for (int i = 0; i < playlist.size(); i++) {
+            songUri = Uri.fromFile(new File(playlist.get(i)));
+            mmr.setDataSource(this, songUri);
+            String songTitle = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+            String songArtist = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+            int songLocation = songCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
+            songs.add(songTitle + "\n" + songArtist);
         }
-    }
 
-    public void addSongsToPlaylist(String playlistName) {
-        ArrayList<String> playlist = mpm.getMasterPlaylistMap().get(playlistName);
-        getAllSongs();
-        songListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-        addDeleteSongsLayout.setVisibility(View.VISIBLE);
-        addSongsButton.setVisibility(View.GONE);
-        deleteSongsButton.setVisibility(View.GONE);
-    }
-
-    public void getAllSongs() {
+/*
         ContentResolver cR = getContentResolver();
         Uri songUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor songCursor = cR.query(songUri, null, null, null, null);
@@ -163,66 +153,7 @@ public class PlaylistSongsActivity extends AppCompatActivity {
                 songLocations.add(currentLocation);
             } while (songCursor.moveToNext());
         }
-    }
-
-    public void getSpecifiedArtistsSongs(String artist) {
-        ContentResolver cR = getContentResolver();
-        Uri songUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor songCursor = cR.query(songUri, null, null, null, null);
-
-        if (songCursor != null && songCursor.moveToFirst()) {
-            int songTitle = songCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
-            int songArtist = songCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
-            int songLocation = songCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
-
-            do {
-                String currentArtist = songCursor.getString(songArtist);
-                if (currentArtist.equals(artist)) {
-                    String currentTitle = songCursor.getString(songTitle);
-                    String currentLocation = songCursor.getString(songLocation);
-                    songs.add(currentTitle + "\n" + currentArtist);
-                    songLocations.add(currentLocation);
-                }
-            } while (songCursor.moveToNext());
-        }
-    }
-
-    public void getSpecifiedAlbumsSongs(String album) {
-        ContentResolver cR = getContentResolver();
-        Uri songUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor songCursor = cR.query(songUri, null, null, null, null);
-
-        if (songCursor != null && songCursor.moveToFirst()) {
-            int songTitle = songCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
-            int songArtist = songCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
-            int songLocation = songCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
-            int songAlbum = songCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
-
-            do {
-                String currentAlbum = songCursor.getString(songAlbum);
-                if (currentAlbum.equals(album)) {
-                    String currentArtist = songCursor.getString(songArtist);
-                    String currentTitle = songCursor.getString(songTitle);
-                    String currentLocation = songCursor.getString(songLocation);
-                    songs.add(currentTitle + "\n" + currentArtist);
-                    songLocations.add(currentLocation);
-                }
-            } while (songCursor.moveToNext());
-        }
-    }
-
-    public void getSpecifiedPlaylistSongs(String playlistName) {
-        ArrayList<String> playlist = mpm.getMasterPlaylistMap().get(playlistName);
-        Uri songUri;
-        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-        for (int i = 0; i < playlist.size(); i++) {
-            songUri = Uri.fromFile(new File(playlist.get(i)));
-            mmr.setDataSource(this, songUri);
-            String songTitle = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-            String songArtist = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-            songs.add(songTitle + "\n" + songArtist);
-        }
-
+        */
     }
 
     @Override

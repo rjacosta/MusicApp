@@ -10,7 +10,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:visibility="gone"
         android:weightSum="2">
 
         <Button
@@ -18,7 +17,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/add_songs_text"
-            android:visibility="gone"
             android:layout_weight="1"/>
 
         <Button
@@ -27,7 +25,22 @@
             android:layout_height="wrap_content"
             android:enabled="false"
             android:text="@string/delete_songs_text"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/done_deleting_songs_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/add_songs_text"
             android:visibility="gone"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/cancel_deleting_songs_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:text="@string/delete_songs_text"
             android:layout_weight="1"/>
 
     </LinearLayout>
