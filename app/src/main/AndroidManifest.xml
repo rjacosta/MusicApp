@@ -29,6 +29,8 @@
             android:enabled="true"
             android:exported="true" />
 
+        <activity android:name=".AddSongsToPlaylistActivity" />
+        <activity android:name=".PlaylistSongsActivity"></activity>
     </application>
 
 </manifest>

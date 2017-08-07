@@ -196,7 +196,7 @@ public class PlaylistMasterListActivity extends AppCompatActivity {
                     Intent intent = new Intent(PlaylistMasterListActivity.this, SongsActivity.class);
                     Bundle bundle = new Bundle();
                     bundle.putString("Value", "Playlist");
-                    bundle.putString("Playlist", stringPlaylists.get(position));
+                    bundle.putString("Playlist Name", stringPlaylists.get(position));
                     mpm.setMediaBundle(bundle);
                     intent.putExtras(bundle);
                     startActivity(intent);
