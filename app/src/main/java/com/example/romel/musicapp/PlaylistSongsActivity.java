@@ -1,12 +1,9 @@
 package com.example.romel.musicapp;
 
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -28,6 +25,10 @@ import static com.example.romel.musicapp.MainMenuActivity.mpm;
 public class PlaylistSongsActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSION_REQUEST = 1;
+    private static final int OPEN_NEW_ACTIVITY = 2;
+
+    String specifiedPlaylistName = mpm.getMediaBundle().getString("Playlist Name");
+    ArrayList<String> specifiedPlaylistSongLocs = mpm.getMasterPlaylistMap().get(specifiedPlaylistName);
 
     ArrayList<String> songs;
     ArrayList<String> songLocations;
@@ -42,10 +43,16 @@ public class PlaylistSongsActivity extends AppCompatActivity {
     Button cancelDeletingSongsButton;
     boolean deleteMode = false;
 
+    int newSongIndex = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_songs);
+        setContentView(R.layout.activity_playlist_songs);
+
+        songListView = (ListView) findViewById(R.id.songs_listview);
+        songs = new ArrayList<>();
+        songLocations = new ArrayList<>();
 
         addDeleteSongsLayout = (LinearLayout) findViewById(R.id.add_delete_songs_layout);
         addSongsButton = (Button) findViewById(R.id.add_songs_button);
@@ -58,10 +65,10 @@ public class PlaylistSongsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(PlaylistSongsActivity.this, AddSongsToPlaylistActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("Playlist Name", mpm.getMediaBundle().getString("Playlist Name"));
+                bundle.putString("Playlist Name", specifiedPlaylistName);
                 mpm.setMediaBundle(bundle);
                 intent.putExtras(bundle);
-                startActivity(intent);
+                startActivityForResult(intent, OPEN_NEW_ACTIVITY);
             }
         });
 
@@ -89,16 +96,14 @@ public class PlaylistSongsActivity extends AppCompatActivity {
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSION_REQUEST);
             }
         } else {
-            getPlaylistSongs();
+            prepPlaylistSongs();
         }
 
     }
 
-    public void getPlaylistSongs() {
-        songListView = (ListView) findViewById(R.id.songs_listview);
-        songs = new ArrayList<>();
-        songLocations = new ArrayList<>();
-        getMusic();
+    public void prepPlaylistSongs() {
+
+        getPlaylistSongs();
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, songs);
         songListView.setAdapter(adapter);
         songListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -108,7 +113,7 @@ public class PlaylistSongsActivity extends AppCompatActivity {
                 if (mpm.getSongIntent() != null) stopService(mpm.getSongIntent());
                 Intent intent = new Intent(PlaylistSongsActivity.this, AudioPlayer.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("songLoc", songLocations.get(position));
+                bundle.putString("songLoc", specifiedPlaylistSongLocs.get(position));
                 mpm.setMediaBundle(bundle);
                 intent.putExtras(bundle);
                 startActivity(intent);
@@ -121,39 +126,17 @@ public class PlaylistSongsActivity extends AppCompatActivity {
         });
     }
 
-    public void getMusic() {
-        String specifiedPlaylistName = mpm.getMediaBundle().getString("Playlist Name");
-        ArrayList<String> playlist = mpm.getMasterPlaylistMap().get(specifiedPlaylistName);
+    public void getPlaylistSongs() {
         Uri songUri;
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-        for (int i = 0; i < playlist.size(); i++) {
-            songUri = Uri.fromFile(new File(playlist.get(i)));
+        for (int i = newSongIndex; i < specifiedPlaylistSongLocs.size(); i++) {
+            songUri = Uri.fromFile(new File(specifiedPlaylistSongLocs.get(i)));
             mmr.setDataSource(this, songUri);
             String songTitle = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
             String songArtist = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-            int songLocation = songCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
             songs.add(songTitle + "\n" + songArtist);
         }
-
-/*
-        ContentResolver cR = getContentResolver();
-        Uri songUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor songCursor = cR.query(songUri, null, null, null, null);
-
-        if (songCursor != null && songCursor.moveToFirst()) {
-            int songTitle = songCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
-            int songArtist = songCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
-            int songLocation = songCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
-
-            do {
-                String currentArtist = songCursor.getString(songArtist);
-                String currentTitle = songCursor.getString(songTitle);
-                String currentLocation = songCursor.getString(songLocation);
-                songs.add(currentTitle + "\n" + currentArtist);
-                songLocations.add(currentLocation);
-            } while (songCursor.moveToNext());
-        }
-        */
+        newSongIndex = specifiedPlaylistSongLocs.size();
     }
 
     @Override
@@ -164,13 +147,23 @@ public class PlaylistSongsActivity extends AppCompatActivity {
                     if (ContextCompat.checkSelfPermission(PlaylistSongsActivity.this,
                             Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                         Toast.makeText(this, "Permission Granted!", Toast.LENGTH_SHORT).show();
-                        getSongs();
+                        prepPlaylistSongs();
                     }
                 } else {
                     Toast.makeText(this, "Permission Denied!", Toast.LENGTH_SHORT).show();
                     finish();
                 }
                 return;
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == OPEN_NEW_ACTIVITY) {
+            if (songListView.getAdapter().getCount() < specifiedPlaylistSongLocs.size()) {
+                getPlaylistSongs();
+                adapter.notifyDataSetChanged();
             }
         }
     }

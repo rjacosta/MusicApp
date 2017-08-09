@@ -1,28 +1,25 @@
 package com.example.romel.musicapp;
 
 import android.content.ContentResolver;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.media.MediaMetadataRetriever;
+import android.graphics.Color;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 import android.Manifest;
-
-import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static com.example.romel.musicapp.MainMenuActivity.mpm;
 
@@ -36,30 +33,40 @@ public class AddSongsToPlaylistActivity extends AppCompatActivity {
     ListView songListView;
     ArrayAdapter<String> adapter;
 
+    ArrayList<Integer> songsToAddIndexes;
+
     Button doneAddingSongsButton;
     Button cancelAddingSongsButton;
+
+    String specifiedPlaylistName = mpm.getMediaBundle().getString("Playlist Name");
+    ArrayList<String> playlistSongLocations = mpm.getMasterPlaylistMap().get(specifiedPlaylistName);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_songs);
+        setContentView(R.layout.activity_add_songs_to_playlist);
 
+        songsToAddIndexes = new ArrayList<>();
+        songs = new ArrayList<>();
+        songLocations = new ArrayList<>();
+        songListView = (ListView) findViewById(R.id.songs_listview);
         doneAddingSongsButton = (Button) findViewById(R.id.done_adding_songs_button);
         cancelAddingSongsButton = (Button) findViewById(R.id.cancel_adding_songs_button);
-
         doneAddingSongsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                doneAddingSongsButton.setVisibility(View.GONE);
-                cancelAddingSongsButton.setVisibility(View.GONE);
+                Collections.sort(songsToAddIndexes, Collections.<Integer>reverseOrder());
+                for (int i = 0; i < songsToAddIndexes.size(); i++) {
+                    playlistSongLocations.add(songLocations.get(songsToAddIndexes.get(i).intValue()));
+                }
+                finish();
             }
         });
 
         cancelAddingSongsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                doneAddingSongsButton.setVisibility(View.GONE);
-                cancelAddingSongsButton.setVisibility(View.GONE);
+                finish();
             }
         });
 
@@ -74,41 +81,24 @@ public class AddSongsToPlaylistActivity extends AppCompatActivity {
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSION_REQUEST);
             }
         } else {
-            getSongs();
+            prepSongList();
         }
 
     }
 
-    public void getSongs() {
-        songListView = (ListView) findViewById(R.id.songs_listview);
-        songs = new ArrayList<>();
-        songLocations = new ArrayList<>();
-        getMusic();
+    public void prepSongList() {
+        getAllSongs();
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, songs);
         songListView.setAdapter(adapter);
         songListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-                //do something about highlihgting songs here
+                songListView.getChildAt(position).setBackgroundColor(Color.BLUE);
+                songsToAddIndexes.add(position);
             }
         });
-    }
-
-    public void getMusic() {
-
-        String specifiedPlaylistName = mpm.getMediaBundle().getString("Playlist Name");
-        addSongsToPlaylist(specifiedPlaylistName);
-
-    }
-
-    public void addSongsToPlaylist(String playlistName) {
-        ArrayList<String> playlist = mpm.getMasterPlaylistMap().get(playlistName);
-        getAllSongs();
         songListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-
-        doneAddingSongsButton.setVisibility(View.VISIBLE);
-        cancelAddingSongsButton.setVisibility(View.VISIBLE);
     }
 
     public void getAllSongs() {
@@ -120,7 +110,6 @@ public class AddSongsToPlaylistActivity extends AppCompatActivity {
             int songTitle = songCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
             int songArtist = songCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
             int songLocation = songCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
-
             do {
                 String currentArtist = songCursor.getString(songArtist);
                 String currentTitle = songCursor.getString(songTitle);
@@ -139,7 +128,7 @@ public class AddSongsToPlaylistActivity extends AppCompatActivity {
                     if (ContextCompat.checkSelfPermission(AddSongsToPlaylistActivity.this,
                             Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                         Toast.makeText(this, "Permission Granted!", Toast.LENGTH_SHORT).show();
-                        getSongs();
+                        prepSongList();
                     }
                 } else {
                     Toast.makeText(this, "Permission Denied!", Toast.LENGTH_SHORT).show();

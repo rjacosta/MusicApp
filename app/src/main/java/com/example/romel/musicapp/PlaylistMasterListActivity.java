@@ -193,7 +193,7 @@ public class PlaylistMasterListActivity extends AppCompatActivity {
 
                 //handle entering playlist
                 else if (deleteMode == false) {
-                    Intent intent = new Intent(PlaylistMasterListActivity.this, SongsActivity.class);
+                    Intent intent = new Intent(PlaylistMasterListActivity.this, PlaylistSongsActivity.class);
                     Bundle bundle = new Bundle();
                     bundle.putString("Value", "Playlist");
                     bundle.putString("Playlist Name", stringPlaylists.get(position));

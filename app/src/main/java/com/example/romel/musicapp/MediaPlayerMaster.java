@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -18,8 +17,11 @@ public class MediaPlayerMaster {
     static Bundle mediaBundle = null;
     static Intent songIntent = null;
     static ArrayList<String> playlistsNames = new ArrayList<>();
+
+    //The key is the playlist name, the value is an Arraylist of the locations of the songs in that playlist
     static HashMap<String, ArrayList<String>> MasterPlaylistMap =
             new HashMap<>();
+
 
     public MediaPlayer getMP() {
         return mp;

@@ -16,7 +16,6 @@
             android:id="@+id/done_adding_songs_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:enabled="false"
             android:text="Add"
             android:layout_weight="1"/>
 
