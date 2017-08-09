@@ -2,6 +2,7 @@ package com.example.romel.musicapp;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.support.v4.app.ActivityCompat;
@@ -19,6 +20,7 @@ import android.Manifest;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static com.example.romel.musicapp.MainMenuActivity.mpm;
 
@@ -42,6 +44,7 @@ public class PlaylistSongsActivity extends AppCompatActivity {
     Button doneDeletingSongsButton;
     Button cancelDeletingSongsButton;
     boolean deleteMode = false;
+    ArrayList<Integer> songsToDeleteIndexes;
 
     int newSongIndex = 0;
 
@@ -53,6 +56,7 @@ public class PlaylistSongsActivity extends AppCompatActivity {
         songListView = (ListView) findViewById(R.id.songs_listview);
         songs = new ArrayList<>();
         songLocations = new ArrayList<>();
+        songsToDeleteIndexes = new ArrayList<>();
 
         addDeleteSongsLayout = (LinearLayout) findViewById(R.id.add_delete_songs_layout);
         addSongsButton = (Button) findViewById(R.id.add_songs_button);
@@ -84,6 +88,46 @@ public class PlaylistSongsActivity extends AppCompatActivity {
             }
         });
 
+        doneDeletingSongsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                songListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+                addSongsButton.setVisibility(View.VISIBLE);
+                deleteSongsButton.setVisibility(View.VISIBLE);
+                doneDeletingSongsButton.setVisibility(View.GONE);
+                cancelDeletingSongsButton.setVisibility(View.GONE);
+
+                Collections.sort(songsToDeleteIndexes, Collections.<Integer>reverseOrder());
+                for (int i = 0; i < songsToDeleteIndexes.size(); i++) {
+                    songListView.getChildAt(songsToDeleteIndexes.get(i).intValue())
+                            .setBackgroundColor(Color.WHITE);
+                    songs.remove(songsToDeleteIndexes.get(i).intValue());
+                    specifiedPlaylistSongLocs.remove(songsToDeleteIndexes.get(i).intValue());
+                }
+                songsToDeleteIndexes.clear();
+                adapter.notifyDataSetChanged();
+                deleteMode = false;
+                newSongIndex = songs.size();
+                if (songs.size() == 0) deleteSongsButton.setEnabled(false);
+            }
+        });
+
+        cancelDeletingSongsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                songListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+                addSongsButton.setVisibility(View.VISIBLE);
+                deleteSongsButton.setVisibility(View.VISIBLE);
+                doneDeletingSongsButton.setVisibility(View.GONE);
+                cancelDeletingSongsButton.setVisibility(View.GONE);
+                deleteMode = false;
+                for (int i = 0; i < songsToDeleteIndexes.size(); i++) {
+                    songListView.getChildAt(songsToDeleteIndexes.get(i).intValue())
+                            .setBackgroundColor(Color.WHITE);
+                }
+                songsToDeleteIndexes.clear();
+            }
+        });
 
         if (ContextCompat.checkSelfPermission(PlaylistSongsActivity.this,
                 Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -110,18 +154,23 @@ public class PlaylistSongsActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-                if (mpm.getSongIntent() != null) stopService(mpm.getSongIntent());
-                Intent intent = new Intent(PlaylistSongsActivity.this, AudioPlayer.class);
-                Bundle bundle = new Bundle();
-                bundle.putString("songLoc", specifiedPlaylistSongLocs.get(position));
-                mpm.setMediaBundle(bundle);
-                intent.putExtras(bundle);
-                startActivity(intent);
-                Intent intentService = new Intent(PlaylistSongsActivity.this, AudioPlayerService.class);
-                intentService.putExtras(bundle);
-                mpm.setSongIntent(intentService);
-                startService(intentService);
-
+                if (!deleteMode){
+                    if (mpm.getSongIntent() != null) stopService(mpm.getSongIntent());
+                    Intent intent = new Intent(PlaylistSongsActivity.this, AudioPlayer.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("songLoc", specifiedPlaylistSongLocs.get(position));
+                    mpm.setMediaBundle(bundle);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
+                    Intent intentService = new Intent(PlaylistSongsActivity.this, AudioPlayerService.class);
+                    intentService.putExtras(bundle);
+                    mpm.setSongIntent(intentService);
+                    startService(intentService);
+                }
+                else if (deleteMode) {
+                    songListView.getChildAt(position).setBackgroundColor(Color.BLUE);
+                    songsToDeleteIndexes.add(position);
+                }
             }
         });
     }
@@ -137,6 +186,8 @@ public class PlaylistSongsActivity extends AppCompatActivity {
             songs.add(songTitle + "\n" + songArtist);
         }
         newSongIndex = specifiedPlaylistSongLocs.size();
+        if (newSongIndex != 0) deleteSongsButton.setEnabled(true);
+        else deleteSongsButton.setEnabled(false);
     }
 
     @Override

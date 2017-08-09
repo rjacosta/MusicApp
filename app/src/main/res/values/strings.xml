@@ -16,5 +16,7 @@
     <string name="final_delete_button_text">Delete</string>
     <string name="add_songs_text">+ Add songs</string>
     <string name="delete_songs_text">- Delete songs</string>
+    <string name="done_deleting_songs_text">Delete</string>
+    <string name="cancel_deleting_songs_text">Cancel</string>
 
 </resources>

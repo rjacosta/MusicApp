@@ -44,7 +44,7 @@ public class PlaylistMasterListActivity extends AppCompatActivity {
     Button finalDeleteButton;
     LinearLayout finalDeleteCancelLayout;
     boolean deleteMode = false;
-    ArrayList<Integer> playlistsToDelete;
+    ArrayList<Integer> playlistsToDeleteIndexes;
 
     ArrayAdapter<String> adapter;
 
@@ -98,7 +98,7 @@ public class PlaylistMasterListActivity extends AppCompatActivity {
                 finalDeleteButton.setEnabled(false);
                 cancelButton.setVisibility(View.VISIBLE);
                 playlistListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-                playlistsToDelete = new ArrayList<>();
+                playlistsToDeleteIndexes = new ArrayList<>();
             }
         });
 
@@ -117,8 +117,8 @@ public class PlaylistMasterListActivity extends AppCompatActivity {
                     finalDeleteButton.setVisibility(View.GONE);
                     addPlaylistButton.setVisibility(View.VISIBLE);
                     deletePlaylistButton.setVisibility(View.VISIBLE);
-                    for (int i = 0; i < playlistsToDelete.size(); i++) {
-                        playlistListView.getChildAt(playlistsToDelete.get(i).intValue())
+                    for (int i = 0; i < playlistsToDeleteIndexes.size(); i++) {
+                        playlistListView.getChildAt(playlistsToDeleteIndexes.get(i).intValue())
                                 .setBackgroundColor(Color.WHITE);
                     }
                     playlistListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
@@ -135,12 +135,12 @@ public class PlaylistMasterListActivity extends AppCompatActivity {
                 deletePlaylistButton.setVisibility(View.VISIBLE);
                 deleteMode = false;
                 playlistListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-                Collections.sort(playlistsToDelete, Collections.<Integer>reverseOrder());
-                for (int i = 0; i < playlistsToDelete.size(); i++) {
-                    playlistListView.getChildAt(playlistsToDelete.get(i).intValue())
+                Collections.sort(playlistsToDeleteIndexes, Collections.<Integer>reverseOrder());
+                for (int i = 0; i < playlistsToDeleteIndexes.size(); i++) {
+                    playlistListView.getChildAt(playlistsToDeleteIndexes.get(i).intValue())
                             .setBackgroundColor(Color.WHITE);
-                    masterPlaylistMap.remove(stringPlaylists.get(playlistsToDelete.get(i).intValue()));
-                    stringPlaylists.remove(playlistsToDelete.get(i).intValue());
+                    masterPlaylistMap.remove(stringPlaylists.get(playlistsToDeleteIndexes.get(i).intValue()));
+                    stringPlaylists.remove(playlistsToDeleteIndexes.get(i).intValue());
                 }
                 adapter.notifyDataSetChanged();
                 if (stringPlaylists.size() == 0) {
@@ -188,7 +188,7 @@ public class PlaylistMasterListActivity extends AppCompatActivity {
                 if (deleteMode == true) {
                     finalDeleteButton.setEnabled(true);
                     playlistListView.getChildAt(position).setBackgroundColor(Color.BLUE);
-                    playlistsToDelete.add(position);
+                    playlistsToDeleteIndexes.add(position);
                 }
 
                 //handle entering playlist
